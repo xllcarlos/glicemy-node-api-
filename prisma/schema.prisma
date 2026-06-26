@@ -1,0 +1,352 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum GenderType {
+  male
+  female
+  other
+
+  @@map("gender_type")
+}
+
+enum AccountStatusType {
+  active
+  inactive
+  pending
+  blocked
+
+  @@map("account_status_type")
+}
+
+enum DiabetesType {
+  type1
+  type2
+  gestational
+  other
+
+  @@map("diabetes_type")
+}
+
+enum GlucoseMeasurementType {
+  fasting
+  pre_meal
+  post_meal
+  before_bed
+  overnight
+  random
+
+  @@map("glucose_measurement_type")
+}
+
+enum ReminderType {
+  medication
+  glucose
+  appointment
+  meal
+  general
+
+  @@map("reminder_type")
+}
+
+enum HealthTipCategory {
+  nutrition
+  physical_activity
+  medication
+  monitoring
+  prevention
+  general
+
+  @@map("health_tip_category")
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+
+  @@map("message_role")
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+model User {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String                 @db.VarChar(255)
+  email                String                 @unique @db.VarChar(255)
+  passwordHash         String
+  emailVerified        Boolean                @default(false)
+  profilePictureUrl    String?
+  phone                String?                @db.VarChar(30)
+  dateOfBirth          DateTime               @db.Date
+  gender               GenderType?
+  accountStatus        AccountStatusType      @default(active)
+  diabetesType         DiabetesType?
+  diagnosisYear        Int?                   @db.SmallInt // Validação >= 1900 deve ser feita na aplicação ou via check constraint manual
+  lastLoginAt          DateTime?              @db.Timestamptz
+  createdAt            DateTime               @default(now()) @db.Timestamptz
+  updatedAt            DateTime               @default(now()) @db.Timestamptz
+  
+  sessions             UserSession[]
+  passwordResetTokens  PasswordResetToken[]
+  glucoseRecords       GlucoseRecord[]
+  hba1cRecords         HbA1cRecord[]
+  weightRecords        WeightRecord[]
+  heightRecords        HeightRecord[]
+  bloodPressureRecords BloodPressureRecord[]
+  medications          Medication[]
+  reminders            Reminder[]
+  emergencyContacts    EmergencyContact[]
+  conversations        Conversation[]
+
+  @@map("User")
+}
+
+model UserSession {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String    @db.Uuid
+  refreshToken   String
+  deviceInfo     String?   @db.VarChar(255)
+  ipAddress      String?   @db.VarChar(100)
+  lastActivityAt DateTime? @db.Timestamptz
+  expiresAt      DateTime  @db.Timestamptz
+  createdAt      DateTime  @default(now()) @db.Timestamptz
+  updatedAt      DateTime  @default(now()) @db.Timestamptz
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("UserSession")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  token     String
+  used      Boolean  @default(false)
+  expiresAt DateTime @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("PasswordResetToken")
+}
+
+model GlucoseRecord {
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String                 @db.Uuid
+  glucoseValue        Decimal                @db.Decimal(6, 2)
+  measurementType     GlucoseMeasurementType
+  source              String?                @default("manual") @db.VarChar(30)
+  notes               String?
+  measurementDateTime DateTime               @db.Timestamptz
+  createdAt           DateTime               @default(now()) @db.Timestamptz
+  updatedAt           DateTime               @default(now()) @db.Timestamptz
+
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_glucose_user")
+  @@map("GlucoseRecord")
+}
+
+model HbA1cRecord {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @db.Uuid
+  hba1cValue      Decimal  @db.Decimal(4, 2)
+  notes           String?
+  measurementDate DateTime @db.Date
+  createdAt       DateTime @default(now()) @db.Timestamptz
+  updatedAt       DateTime @default(now()) @db.Timestamptz
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_hba1c_user")
+  @@map("HbA1cRecord")
+}
+
+model WeightRecord {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @db.Uuid
+  weightValue         Decimal  @db.Decimal(6, 2)
+  notes               String?
+  measurementDateTime DateTime @db.Timestamptz
+  createdAt           DateTime @default(now()) @db.Timestamptz
+  updatedAt           DateTime @default(now()) @db.Timestamptz
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_weight_user")
+  @@map("WeightRecord")
+}
+
+model HeightRecord {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @db.Uuid
+  heightValue         Decimal  @db.Decimal(5, 2)
+  measurementDateTime DateTime @db.Timestamptz
+  createdAt           DateTime @default(now()) @db.Timestamptz
+  updatedAt           DateTime @default(now()) @db.Timestamptz
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("HeightRecord")
+}
+
+model BloodPressureRecord {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @db.Uuid
+  systolic            Int
+  diastolic           Int
+  pulse               Int?
+  notes               String?
+  measurementDateTime DateTime @db.Timestamptz
+  createdAt           DateTime @default(now()) @db.Timestamptz
+  updatedAt           DateTime @default(now()) @db.Timestamptz
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_pressure_user")
+  @@map("BloodPressureRecord")
+}
+
+model Medication {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String     @db.Uuid
+  name         String     @db.VarChar(255)
+  dosage       String     @db.VarChar(100)
+  frequency    String?    @db.VarChar(255)
+  observations String?
+  createdAt    DateTime   @default(now()) @db.Timestamptz
+  updatedAt    DateTime   @default(now()) @db.Timestamptz
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminders    Reminder[]
+
+  @@map("Medication")
+}
+
+model Reminder {
+  id           String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String             @db.Uuid
+  title        String             @db.VarChar(255)
+  description  String?
+  type         ReminderType
+  startDate    DateTime?          @db.Date
+  endDate      DateTime?          @db.Date
+  isActive     Boolean            @default(true)
+  medicationId String?            @db.Uuid
+  createdAt    DateTime           @default(now()) @db.Timestamptz
+  updatedAt    DateTime           @default(now()) @db.Timestamptz
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medication   Medication?        @relation(fields: [medicationId], references: [id], onDelete: SetNull)
+  schedules    ReminderSchedule[]
+
+  @@index([userId], map: "idx_reminder_user")
+  @@map("Reminder")
+}
+
+model ReminderSchedule {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reminderId String   @db.Uuid
+  time       DateTime @db.Time
+  dayOfWeek  Int?     @db.SmallInt // Validação BETWEEN 1 AND 7 deve ser feita na aplicação
+  createdAt  DateTime @default(now()) @db.Timestamptz
+  updatedAt  DateTime @default(now()) @db.Timestamptz
+
+  reminder   Reminder @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+
+  @@map("ReminderSchedule")
+}
+
+model EmergencyContact {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @db.Uuid
+  name           String   @db.VarChar(255)
+  phone          String   @db.VarChar(30)
+  email          String?  @db.VarChar(255)
+  relationship   String?  @db.VarChar(100)
+  isPrimary      Boolean? @default(false)
+  canReceiveSMS  Boolean? @default(true)
+  canReceiveCalls Boolean? @default(true)
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @default(now()) @db.Timestamptz
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("EmergencyContact")
+}
+
+model HealthTip {
+  id        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String            @db.VarChar(255)
+  content   String
+  category  HealthTipCategory
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now()) @db.Timestamptz
+  updatedAt DateTime          @default(now()) @db.Timestamptz
+
+  @@map("HealthTip")
+}
+
+model Conversation {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @db.Uuid
+  title     String?   @db.VarChar(255)
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @default(now()) @db.Timestamptz
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@index([userId], map: "idx_conversation_user")
+  @@map("Conversation")
+}
+
+model Message {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String          @db.Uuid
+  sequenceNumber Int
+  role           MessageRole
+  content        String
+  createdAt      DateTime        @default(now()) @db.Timestamptz
+
+  conversation   Conversation    @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  aiInteractions AIInteraction[]
+
+  @@unique([conversationId, sequenceNumber])
+  @@index([conversationId], map: "idx_message_conversation")
+  @@map("Message")
+}
+
+model AIInteraction {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId        String   @db.Uuid
+  model            String?  @db.VarChar(100)
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  responseTimeMs   Int?
+  success          Boolean? @default(true)
+  errorMessage     String?
+  createdAt        DateTime @default(now()) @db.Timestamptz
+
+  message          Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("AIInteraction")
+}
