@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Registrar Peso
+POST {{baseUrl}}/api/weight
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "weightValue": 75.5,
+  "notes": "Pesado em jejum pela manha",
+  "measurementDateTime": "2026-06-25T08:00:00.000Z"
+}
+
+###
+
+### 2. Listar Historico de Peso
+GET {{baseUrl}}/api/weight
+Authorization: Bearer {{authToken}}
+
+###
+
+### 3. Buscar um registro especifico
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/weight/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 4. Atualizar registro
+PUT {{baseUrl}}/api/weight/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "weightValue": 74.8,
+  "notes": "Atualizado: peso ajustado apos confirmacao na balanca"
+}
+
+###
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/weight/{{recordId}}
+Authorization: Bearer {{authToken}}

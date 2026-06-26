@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Registrar Pressão Arterial (Ex: 120x80)
+POST {{baseUrl}}/api/blood-pressure
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "systolic": 120,
+  "diastolic": 80,
+  "pulse": 72,
+  "notes": "Pressão normal após caminhada",
+  "measurementDateTime": "2026-06-25T08:00:00.000Z"
+}
+
+###
+
+### 2. Listar Histórico de Pressão
+GET {{baseUrl}}/api/blood-pressure
+Authorization: Bearer {{authToken}}
+
+###
+
+### 3. Buscar um registro específico
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/blood-pressure/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 4. Atualizar registro
+PUT {{baseUrl}}/api/blood-pressure/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "systolic": 110,
+  "diastolic": 70,
+  "notes": "Atualizado: estava em repouso absoluto"
+}
+
+###
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/blood-pressure/{{recordId}}
+Authorization: Bearer {{authToken}}

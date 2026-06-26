@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3000
+
+### 1. Registrar Novo Usuário (Completo)
+# @name registerUser
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Paciente Glicemy Completo",
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123",
+  "dateOfBirth": "1990-05-20T00:00:00.000Z",
+  "phone": "79999999999",
+  "gender": "male",
+  "diabetesType": "type1",
+  "diagnosisYear": 2015
+}
+
+###
+
+### 2. Fazer Login
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 3. Teste Rápido de Token
+# Apenas para ver se o VS Code mapeou corretamente
+# Se você passar o mouse por cima de {{authToken}} abaixo, verá o token gigante!
+GET {{baseUrl}}/health
+Authorization: Bearer {{authToken}}

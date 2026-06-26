@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Registrar nova Glicemia (Em Jejum)
+POST {{baseUrl}}/api/glucose
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "glucoseValue": 98.5,
+  "measurementType": "fasting",
+  "source": "manual",
+  "notes": "Me sentindo bem hoje pela manhã",
+  "measurementDateTime": "2026-06-25T07:30:00.000Z"
+}
+
+###
+
+### 2. Listar Histórico do Usuário Logado
+GET {{baseUrl}}/api/glucose
+Authorization: Bearer {{authToken}}
+
+###
+
+### 3. Buscar um registro específico
+# Substitua pelo ID gerado no passo 1
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/glucose/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 4. Atualizar registro (Ex: errou o valor da glicose)
+PUT {{baseUrl}}/api/glucose/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "glucoseValue": 105.0,
+  "notes": "Corrigido: Me sentindo bem, mas a glicose estava um pouco maior."
+}
+
+###
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/glucose/{{recordId}}
+Authorization: Bearer {{authToken}}

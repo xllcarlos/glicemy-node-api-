@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Registrar Lembrete (Medir Glicose 2x ao dia)
+POST {{baseUrl}}/api/reminders
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Medir Glicemia de Jejum e Pos-prandial",
+  "description": "Lembrar de higienizar as maos",
+  "type": "glucose",
+  "schedules": [
+    { "time": "07:30" },
+    { "time": "20:00" }
+  ]
+}
+
+### 2. Listar Historico de Lembretes
+# Observe na resposta que a matriz "schedules" vira preenchida com os horarios.
+GET {{baseUrl}}/api/reminders
+Authorization: Bearer {{authToken}}
+
+### 3. Buscar um registro especifico
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/reminders/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+### 4. Atualizar registro (Alterar horarios)
+PUT {{baseUrl}}/api/reminders/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Medir Glicemia (Horarios Atualizados)",
+  "schedules": [
+    { "time": "08:00" },
+    { "time": "21:00" }
+  ]
+}
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/reminders/{{recordId}}
+Authorization: Bearer {{authToken}}

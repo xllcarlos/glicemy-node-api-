@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Registrar Medicamento
+POST {{baseUrl}}/api/medications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Metformina",
+  "dosage": "500mg",
+  "frequency": "2 vezes ao dia",
+  "observations": "Tomar apos as refeicoes"
+}
+
+### 2. Listar Historico de Medicamentos
+GET {{baseUrl}}/api/medications
+Authorization: Bearer {{authToken}}
+
+### 3. Buscar um registro especifico
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/medications/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+### 4. Atualizar registro
+PUT {{baseUrl}}/api/medications/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "dosage": "850mg",
+  "observations": "Dosagem alterada pelo endocrinologista"
+}
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/medications/{{recordId}}
+Authorization: Bearer {{authToken}}
