@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Cadastrar Contato de Emergencia
+POST {{baseUrl}}/api/emergency-contacts
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Maria Silva (Mae)",
+  "phone": "79911112222",
+  "relationship": "Mae",
+  "isPrimary": true,
+  "canReceiveSMS": true,
+  "canReceiveCalls": true
+}
+
+###
+
+### 2. Listar Contatos de Emergencia
+GET {{baseUrl}}/api/emergency-contacts
+Authorization: Bearer {{authToken}}
+
+###
+
+### 3. Buscar um registro especifico
+@recordId = cole_o_id_uuid_aqui
+
+GET {{baseUrl}}/api/emergency-contacts/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 4. Atualizar registro
+PUT {{baseUrl}}/api/emergency-contacts/{{recordId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "maria.mae@email.com",
+  "canReceiveSMS": false
+}
+
+###
+
+### 5. Deletar registro
+DELETE {{baseUrl}}/api/emergency-contacts/{{recordId}}
+Authorization: Bearer {{authToken}}

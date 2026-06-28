@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Iniciar novo chat e mandar mensagem
+POST {{baseUrl}}/api/ai-chat/send
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "content": "Ola, acabei de medir minha glicemia e deu 180. O que isso significa?"
+}
+
+### 2. Listar minhas conversas
+GET {{baseUrl}}/api/ai-chat/conversations
+Authorization: Bearer {{authToken}}
+
+### 3. Continuar o papo (Pegue o conversationId gerado no passo 1 e coloque abaixo)
+@conversationId = coloque_o_id_da_conversa_aqui
+
+POST {{baseUrl}}/api/ai-chat/send
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "conversationId": "{{conversationId}}",
+  "content": "Sera que eu devo aumentar minha dose de insulina agora mesmo?"
+}
+
+### 4. Ver todo o historico dessa conversa especifica
+GET {{baseUrl}}/api/ai-chat/conversations/{{conversationId}}
+Authorization: Bearer {{authToken}}

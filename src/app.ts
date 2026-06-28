@@ -14,6 +14,10 @@ import heightRoutes from './modules/height/height.routes.js';
 import hba1cRoutes from './modules/hba1c/hba1c.routes.js';
 import medicationsRoutes from './modules/medications/medications.routes.js';
 import remindersRoutes from './modules/reminders/reminders.routes.js';
+import aiChatRoutes from './modules/ai-chat/ai-chat.routes.js';
+import reportsRoutes from './modules/reports/reports.routes.js';
+import usersRoutes from './modules/users/users.routes.js';
+import contactsRoutes from './modules/emergency-contacts/emergency-contacts.routes.js';
 
 const app: Application = express();
 
@@ -38,6 +42,10 @@ app.use('/api/height', heightRoutes);
 app.use('/api/hba1c', hba1cRoutes);
 app.use('/api/medications', medicationsRoutes);
 app.use('/api/reminders', remindersRoutes);
+app.use('/api/ai-chat', aiChatRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/emergency-contacts', contactsRoutes);
 
 // Tratamento de Erros
 app.use(errorHandler);

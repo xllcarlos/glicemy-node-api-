@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:3000
+
+### 0. Fazer Login para pegar o Token
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+###
+@authToken = {{loginUser.response.body.token}}
+
+### 1. Baixar Relatório em PDF
+# No VS Code REST Client, você não vai ver o PDF renderizado, ele vai exibir um monte de caracteres estranhos (o Buffer do arquivo). Isso significa que funcionou perfeitamente! Para ver o visual, você testaria chamando a rota no navegador com um token ativo.
+GET {{baseUrl}}/api/reports/download
+Authorization: Bearer {{authToken}}
+
+### 2. Enviar Relatorio por E-mail
+POST {{baseUrl}}/api/reports/send-email
+Authorization: Bearer {{authToken}}

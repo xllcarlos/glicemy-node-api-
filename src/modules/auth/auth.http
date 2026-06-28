@@ -36,3 +36,26 @@ Content-Type: application/json
 # Se você passar o mouse por cima de {{authToken}} abaixo, verá o token gigante!
 GET {{baseUrl}}/health
 Authorization: Bearer {{authToken}}
+
+### 4. Esqueci a Senha (Forgot Password)
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com"
+}
+
+# Obs: Olhe no terminal do VS Code após enviar esta requisição! 
+# Vai aparecer um link (URL do E-mail de Teste). Clique nele para ver o token gerado.
+
+###
+
+### 5. Redefinir a Senha (Reset Password)
+# Substitua O_TOKEN_AQUI pelo numero de 6 digitos que voce viu no link do email
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "O_TOKEN_AQUI",
+  "newPassword": "nova_senha_super_segura"
+}

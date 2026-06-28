@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../lib/prisma.js';
+import { transporter } from '../../lib/mailer.js';
 
 export class AuthService {
   async register(data: any) {
@@ -67,12 +68,79 @@ export class AuthService {
       }
     });
 
-    // 👉 NOVO: Atualiza a data do último login do usuário
+    // NOVO: Atualiza a data do último login do usuário
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }
     });
 
     return { user: { id: user.id, name: user.name, email: user.email }, token };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error('Se o e-mail existir, um link de recuperação será enviado.'); // Mensagem genérica por segurança
+
+    // Gera um token simples de 6 dígitos (ou poderia ser um UUID)
+    const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Expira em 1 hora[cite: 8]
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Salva no banco de dados[cite: 8]
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+      }
+    });
+
+    // Envia o e-mail
+    const info = await transporter.sendMail({
+      from: '"Equipe Glicemy" <seu.email.do.projeto@gmail.com>', // 👈 Coloque seu Gmail aqui
+      to: user.email,
+      subject: 'Recuperação de Senha - Glicemy',
+      text: `Olá ${user.name},\n\nSeu código de recuperação é: ${token}`,
+      html: `<p>Olá <b>${user.name}</b>,</p><p>Seu código de recuperação é: <h2>${token}</h2></p>`
+    });
+
+    // Como estamos usando Ethereal, precisamos logar o link para ver o e-mail no navegador
+    import('nodemailer').then((nodemailer) => {
+      console.log('🔗 URL do E-mail de Teste: %s', nodemailer.getTestMessageUrl(info));
+    });
+
+    return { message: 'Se o e-mail existir, um link de recuperação será enviado.' };
+  }
+
+  async resetPassword(data: any) {
+    // Busca o token no banco que ainda não foi usado e não expirou[cite: 8]
+    const resetRecord = await prisma.passwordResetToken.findFirst({
+      where: {
+        token: data.token,
+        used: false,
+        expiresAt: { gt: new Date() }
+      }
+    });
+
+    if (!resetRecord) throw new Error('Token inválido ou expirado.');
+
+    // Criptografa a nova senha
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(data.newPassword, salt);
+
+    // Atualiza a senha do usuário
+    await prisma.user.update({
+      where: { id: resetRecord.userId },
+      data: { passwordHash: newPasswordHash }
+    });
+
+    // Marca o token como usado[cite: 8]
+    await prisma.passwordResetToken.update({
+      where: { id: resetRecord.id },
+      data: { used: true }
+    });
+
+    return { message: 'Senha atualizada com sucesso.' };
   }
 }
