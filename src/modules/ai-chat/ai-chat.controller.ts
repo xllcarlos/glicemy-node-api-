@@ -27,7 +27,7 @@ export class AiChatController {
 
   async getHistory(req: AuthRequest, res: Response) {
     try {
-      const history = await aiChatService.getConversationHistory(req.params.id, req.user!.id);
+      const history = await aiChatService.getConversationHistory(req.params.id as string, req.user!.id);
       res.status(StatusCodes.OK).json(history);
     } catch (error: any) {
       res.status(StatusCodes.NOT_FOUND).json({ message: error.message });

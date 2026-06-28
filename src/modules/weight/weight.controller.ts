@@ -20,19 +20,19 @@ export class WeightController {
   }
   async getById(req: AuthRequest, res: Response) {
     try {
-      const record = await weightService.findById(req.params.id, req.user!.id);
+      const record = await weightService.findById(req.params.id as string, req.user!.id);
       res.status(StatusCodes.OK).json(record);
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }
   async update(req: AuthRequest, res: Response) {
     try {
-      const record = await weightService.update(req.params.id, req.user!.id, req.body);
+      const record = await weightService.update(req.params.id as string, req.user!.id, req.body);
       res.status(StatusCodes.OK).json(record);
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }
   async delete(req: AuthRequest, res: Response) {
     try {
-      await weightService.delete(req.params.id, req.user!.id);
+      await weightService.delete(req.params.id as string, req.user!.id);
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }

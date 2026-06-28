@@ -1,29 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
-import { StatusCodes } from 'http-status-codes';
+import { ZodSchema, ZodError } from 'zod';
 
-export const validateRequest = (schema: AnyZodObject) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const validateRequest = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync({
+      schema.parse({
         body: req.body,
         query: req.query,
         params: req.params,
       });
-      next(); // Tudo certo, passa para o Controller
-    } catch (error) {
+      next();
+    } catch (error: any) {
       if (error instanceof ZodError) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          status: 'error',
-          message: 'Erro de validação nos dados enviados',
-          errors: error.errors.map(err => ({
-            campo: err.path.join('.'),
-            mensagem: err.message
-          })),
-        });
-        return;
+        return res.status(400).json({ message: 'Erro de validação', errors: error.errors });
       }
-      next(error);
+      return res.status(400).json({ message: error.message });
     }
   };
 };

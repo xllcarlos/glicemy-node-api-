@@ -22,7 +22,7 @@ export class AiChatService {
     } else {
       conversation = await prisma.conversation.create({
         data: { userId, title: 'Novo chat sobre Diabetes' },
-        include: { messages: [] },
+        include: { messages: true },
       });
     }
 
@@ -40,7 +40,7 @@ export class AiChatService {
     const apiMessages: any[] = [{ role: 'system', content: SYSTEM_PROMPT }];
     
     if (conversation.messages) {
-      conversation.messages.forEach(msg => {
+      conversation.messages.forEach((msg: any) => {
         apiMessages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content });
       });
     }

@@ -2,11 +2,13 @@ import { z } from 'zod';
 
 // Mapeando os Enums exatamente como estão no seu schema.prisma
 const GenderEnum = z.enum(['male', 'female', 'other'], {
-  errorMap: () => ({ message: "Gênero deve ser 'male', 'female' ou 'other'" })
+  invalid_type_error: "Gênero deve ser 'male', 'female' ou 'other'",
+  required_error: "Tipo de gênero é obrigatório"
 });
 
 const DiabetesEnum = z.enum(['type1', 'type2', 'gestational', 'other'], {
-  errorMap: () => ({ message: "Tipo de diabetes deve ser 'type1', 'type2', 'gestational' ou 'other'" })
+  invalid_type_error: "Tipo de diabetes deve ser 'type1', 'type2', 'gestational' ou 'other'",
+  required_error: "Tipo de diabetes é obrigatório"
 });
 
 export const registerSchema = z.object({

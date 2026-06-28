@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 const ReminderTypeEnum = z.enum(['medication', 'glucose', 'appointment', 'meal', 'general'], {
-  errorMap: () => ({ message: "Tipo de lembrete inválido" })
+  invalid_type_error: "Tipo de lembrete inválido",
+  required_error: "Tipo de lembrete é obrigatório"
 });
 
 // Validação individual de cada horário enviado

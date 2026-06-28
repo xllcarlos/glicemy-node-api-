@@ -27,7 +27,7 @@ export class GlucoseController {
 
   async getById(req: AuthRequest, res: Response) {
     try {
-      const record = await glucoseService.findById(req.params.id, req.user!.id);
+      const record = await glucoseService.findById(req.params.id as string, req.user!.id);
       res.status(StatusCodes.OK).json(record);
     } catch (error: any) {
       res.status(StatusCodes.NOT_FOUND).json({ message: error.message });
@@ -36,7 +36,7 @@ export class GlucoseController {
 
   async update(req: AuthRequest, res: Response) {
     try {
-      const record = await glucoseService.update(req.params.id, req.user!.id, req.body);
+      const record = await glucoseService.update(req.params.id as string, req.user!.id, req.body);
       res.status(StatusCodes.OK).json({ message: 'Registro atualizado!', record });
     } catch (error: any) {
       res.status(StatusCodes.NOT_FOUND).json({ message: error.message });
@@ -45,7 +45,7 @@ export class GlucoseController {
 
   async delete(req: AuthRequest, res: Response) {
     try {
-      await glucoseService.delete(req.params.id, req.user!.id);
+      await glucoseService.delete(req.params.id as string, req.user!.id);
       res.status(StatusCodes.NO_CONTENT).send(); 
     } catch (error: any) {
       res.status(StatusCodes.NOT_FOUND).json({ message: error.message });

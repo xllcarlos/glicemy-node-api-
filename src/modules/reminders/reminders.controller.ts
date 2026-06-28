@@ -20,19 +20,19 @@ export class ReminderController {
   }
   async getById(req: AuthRequest, res: Response) {
     try {
-      const record = await reminderService.findById(req.params.id, req.user!.id);
+      const record = await reminderService.findById(req.params.id as string, req.user!.id);
       res.status(StatusCodes.OK).json(record);
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }
   async update(req: AuthRequest, res: Response) {
     try {
-      const record = await reminderService.update(req.params.id, req.user!.id, req.body);
+      const record = await reminderService.update(req.params.id as string, req.user!.id, req.body);
       res.status(StatusCodes.OK).json(record);
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }
   async delete(req: AuthRequest, res: Response) {
     try {
-      await reminderService.delete(req.params.id, req.user!.id);
+      await reminderService.delete(req.params.id as string, req.user!.id);
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (error: any) { res.status(StatusCodes.NOT_FOUND).json({ message: error.message }); }
   }
