@@ -2,10 +2,7 @@ import { z } from 'zod';
 
 const MeasurementTypeEnum = z.enum([
   'fasting', 'pre_meal', 'post_meal', 'before_bed', 'overnight', 'random'
-], {
-  invalid_type_error: "Tipo de medição inválido. Ex: 'fasting', 'post_meal'",
-  required_error: "Tipo de medição é obrigatório"
-});
+]);
 
 export const createGlucoseSchema = z.object({
   body: z.object({
