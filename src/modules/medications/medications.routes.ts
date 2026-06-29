@@ -7,8 +7,8 @@ import { createMedicationSchema, paramsSchema, updateMedicationSchema } from './
 /**
  * @swagger
  * tags:
- *   name: Medicações
- *   description: Registro e gerenciamento de medicações do usuário
+ *   - name: Medicamentos
+ *     description: Registro e gerenciamento de medicamentos do usuário
  */
 
 const medicationsRoutes = Router();
