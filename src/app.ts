@@ -18,6 +18,7 @@ import aiChatRoutes from './modules/ai-chat/ai-chat.routes.js';
 import reportsRoutes from './modules/reports/reports.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 import contactsRoutes from './modules/emergency-contacts/emergency-contacts.routes.js';
+import healthTipsRoutes from './modules/health-tips/health-tips.routes.js';
 
 const app: Application = express();
 
@@ -33,7 +34,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'API Glicemy funcionando perfeitamente!' });
 });
 
-// 📌 Registrando Módulos
+// Registrando Módulos
 app.use('/api/auth', authRoutes);
 app.use('/api/glucose', glucoseRoutes);
 app.use('/api/blood-pressure', bpRoutes);
@@ -46,6 +47,7 @@ app.use('/api/ai-chat', aiChatRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/emergency-contacts', contactsRoutes);
+app.use('/api/health-tips', healthTipsRoutes);
 
 // Tratamento de Erros
 app.use(errorHandler);

@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:3000
+
+### ==========================================
+### 0. AUTENTICAÇÃO
+### ==========================================
+
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "paciente.completo@glicemy.com",
+  "password": "senha_segura_123"
+}
+
+### Armazenando o token dinamicamente
+### (Atenção: ajuste ".token" se a sua API retornar o token dentro de outro objeto, como ".data.token")
+@authToken = {{loginUser.response.body.token}}
+
+### ==========================================
+### CONSUMO DO APLICATIVO
+### ==========================================
+
+### 1. Obter 5 dicas de saúde aleatórias ativas
+GET {{baseUrl}}/api/health-tips/random
+Authorization: Bearer {{authToken}}
+
+### ==========================================
+### GERENCIAMENTO (CRUD)
+### ==========================================
+
+### 2. Criar uma nova dica de saúde
+# @name createTip
+POST {{baseUrl}}/api/health-tips
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Monitoramento da Glicemia",
+  "content": "Medir a glicose nos horários corretos ajuda a entender o impacto dos alimentos no seu corpo.",
+  "category": "monitoring",
+  "isActive": true
+}
+
+### Armazenando o ID gerado na requisição acima para usar nos próximos testes
+@tipId = {{createTip.response.body.id}}
+
+### 3. Listar todas as dicas de saúde cadastradas
+GET {{baseUrl}}/api/health-tips
+Authorization: Bearer {{authToken}}
+
+### 4. Buscar uma dica de saúde específica pelo ID gerado
+GET {{baseUrl}}/api/health-tips/{{tipId}}
+Authorization: Bearer {{authToken}}
+
+### 5. Atualizar a dica de saúde existente
+PUT {{baseUrl}}/api/health-tips/{{tipId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Monitoramento Prático da Glicemia",
+  "content": "Manter um diário com as medições diárias é essencial para o ajuste fino do seu tratamento.",
+  "category": "monitoring",
+  "isActive": true
+}
+
+### 6. Remover a dica de saúde criada
+DELETE {{baseUrl}}/api/health-tips/{{tipId}}
+Authorization: Bearer {{authToken}}
